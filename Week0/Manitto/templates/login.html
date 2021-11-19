@@ -1,0 +1,38 @@
+{% extends "base2.html" %}
+{% block content %}
+<main class="form-signin">
+  <form method="post">
+    {{ form.csrf_token }}
+    <img class="mb-4" src="{{ url_for('static', filename='logo.png') }}" alt="" width="216" height="171">
+
+    <div class="form-floating">
+        <input type="text" class="form-control" id="user_id" name="user_id" value="{{ form.user_id.data or '' }}">
+        <label for="floatingInput">ID</label>
+    </div>
+
+    <div class="form-floating">
+        <input type="password" class="form-control" id="password" name="password" value="{{ form.password.data or '' }}">
+        <label for="password">Password</label>
+    </div>
+
+    {% if g.user %}
+        <button class="btn btn-success" onclick="location.href='/logout'">로그아웃</button>
+    {% else %}
+        <button type="submit" class="w-100 btn btn-lg btn-success">로그인</button>
+        <p>
+             
+        </p>
+        <button type="button" onclick="location.href='/board'" class="w-100 btn btn-lg btn-success">둘러보기</button>
+        <p>
+             
+        </p>
+        
+        <button type="button" onclick="location.href='/signup'" class="w-100 btn btn-lg btn-success">회원가입</button>
+
+    {% endif %}
+
+    {% include "form_errors.html" %}
+
+  </form>
+</main>    
+{% endblock %}

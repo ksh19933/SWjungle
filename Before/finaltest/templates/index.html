@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+            integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+            crossorigin="anonymous">
+              <!-- JS -->
+        <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+            integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+            crossorigin="anonymous"></script>
+        <!-- 구글폰트 -->
+        <link href="https://fonts.googleapis.com/css?family=Stylish&display=swap" rel="stylesheet">
+        <title>SW사관학교 정글|간단메모</title>
+        <style>
+          .wrap{
+            width: 1000px;
+            margin: 10px auto;
+          }
+          #post-box{
+            width: 400px;
+          }
+          .card-columns{
+            width: 800px;
+            column-count: 2;
+          }
+
+        </style>
+        <script>
+          $(document).ready(function(){
+            get_data()
+          })
+
+          function save(){
+            title = $('#memo_title').val();
+            text = $('#memo_text').val();
+            $.ajax({
+              type: 'POST',
+              url: '/',
+              data: {'title_give':title, 'text_give':text},
+              success: function(){
+                alert("저장완료!")
+                window.location.reload()
+              }
+            })
+          }
+          function get_data(){
+            $.ajax({
+              type: 'GET',
+              url: '/data',
+              data: {},
+              success: function(response){
+                data = response['db_data']
+                for (i=0; i<data.length;i++){
+                  get_card(data[i])
+                }
+              }
+            })
+          }
+
+          function get_card(data){
+            _id = data['_id']
+            title = data['title'];
+            text = data['text'];
+            temp_html = `<div class="col md-4" style="display:block;" id="${_id}_memo">
+                          <div class="card">
+                            <div class="card-body">
+                              <h5 class="card-title">${title}</h5>
+                              <p class="card-text">${text}</p>
+                              <p>
+                                <button class="btn btn-dark btn-sm" onclick="openclose('${_id}')">수정</button>
+                                <button class="btn btn-danger btn-sm" onclick="remove('${_id}')">삭제</button>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col mb-4" style="display:none" id="${_id}_update">
+                          <div class="card">
+                            <div class="card-body">
+                              <input class="form-control" id="update_memo_${_id}" value="${title}"></input>
+                              <p></p>
+                              <textarea class="form-control" id="update_text_${_id}" rows="3">${text}</textarea>
+                              <p></p>
+                              <button type="submit" class="btn btn-primary btn-sm" onclick="openclose('${_id}'); update('${_id}')">저장</button>
+                            </div>
+                          </div>
+                        </div>
+                        `
+              $('#card_list').append(temp_html)
+          }
+
+          function update(_id){
+            _title = '#update_memo_'+ _id
+            _text = '#update_text_'+ _id
+            title = $(_title).val()
+            text = $(_text).val()
+            $.ajax({
+              type: 'POST',
+              url: '/update',
+              data: {'_id': _id, 'title_give':title,'text_give':text},
+              success: function(){
+                alert("수정 완료!")
+                window.location.reload()
+              }
+            })
+          }
+          function remove(_id){
+            $.ajax({
+              type: 'POST',
+              url: '/delete',
+              data: {'_id':_id},
+              success:  function(){
+                alert("삭제 완료!")
+                window.location.reload()
+              }
+            })
+
+          }
+
+          function openclose(title){
+            title_memo = "#" + title + "_memo"
+            title_update = "#" + title + "_update"
+            let status = $(title_memo).css('display')
+            if(status == 'block'){
+              $(title_memo).hide()
+              $(title_update).show()
+            } else{
+              $(title_memo).show()
+              $(title_update).hide()
+            }
+          }
+        </script>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="jumbotron">
+        <div id='post-box'>
+          <h2 class="display-5">나홀로 메모장  <span class="badge badge-secondary">ver2.0</span></h2>
+          <input class="form-control" id="memo_title" placeholder="메모 제목을 입력하세요.">
+          <p></p>
+          <textarea class="form-control" id="memo_text" rows="3" placeholder="내용을 입력하세요."></textarea>
+          <p></p>
+          <button class="btn btn-primary btn-lg" onclick="save()">저장하기</button>
+        </div>
+      </div>
+      <div class ="card-columns" id="card_list">
+      </div>
+
+    </div>
+  </body>
+
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>정글 마니또</title>
+
+  <!-- bootstrap -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+
+  <!-- JS -->
+
+
+  <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+    integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+    integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+    crossorigin="anonymous"></script>
+
+  <!-- 구글폰트 -->
+  <link href="https://fonts.googleapis.com/css?family=Stylish&display=swap" rel="stylesheet" />
+
+  <!-- 폰트 : 배민 주아 regular 400 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+
+
+
+  <script>
+    function comment_save(id_) {
+      console.log("실행/");
+      const value = "#comment_input_" + id_;
+      let comment = $(value).val();
+      $.ajax({
+        type: "POST",
+        url: "/board",
+        data: { comment_give: comment, id_give: id_ },
+        success: function () {
+          alert('댓글작성이 완료되었습니다.');
+          window.location.reload();
+        }
+      });
+    }
+
+    function comment_update(post_id, comment_id, comment) {
+      value = "#" + post_id + "_" + comment_id
+      $(value).hide()
+      temp_html = `
+        <br>
+        <div style="display:flex">
+          <input id="update_input" style="margin-right:5%;" class="input is-small" type="text" value="${comment}">
+          <button class="button is-small" onclick="comment_update_api('${post_id}','${comment_id}')">수정완료</button>
+        </div>
+        <br>
+        `
+      box_value = "#box_" + post_id + "_" + comment_id
+      $(box_value).append(temp_html)
+    }
+    function comment_update_api(post_id, comment_id) {
+      comment_text = $('#update_input').val()
+      $.ajax({
+        type: 'POST',
+        url: '/board/update',
+        data: { post_id_give: post_id, comment_id_give: comment_id, comment_text_give: comment_text },
+        success: function () {
+          alert("댓글수정이 완료되었습니다.")
+          window.location.reload()
+        }
+      })
+    }
+
+    function comment_delete(post_id, comment_id) {
+      $.ajax({
+        type: 'POST',
+        url: 'board/delete',
+        data: { post_id_give: post_id, comment_id_give: comment_id },
+        success: function () {
+          alert('삭제를 완료했습니다.')
+          window.location.reload()
+        }
+
+      })
+    }
+
+
+
+
+    function alert_() {
+      alert("로그인을 해주세요!");
+      return;
+    }
+
+
+  </script>
+
+  <style type="text/css">
+    body {
+      background-color: rgb(249, 250, 250);
+    }
+
+    .wrap {
+      width: 70%;
+      background-color: rgb(249, 250, 250);
+      margin: 0px auto;
+    }
+
+    .card-columns {
+      display: grid;
+      background-color: rgb(249, 250, 250);
+      column-gap: 100px;
+      column-count: 1;
+    }
+
+
+
+    * {
+      font-family: 'Jua', san0s-serif;
+    }
+
+    .navbar {
+      height: 60px;
+      background-color: #3F986D;
+    }
+
+    .comment_list {
+      font-size: 10;
+    }
+
+    .mission {
+      white-space: nowrap;
+    }
+
+    .logout-info {
+      margin-left: auto;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="navbar">
+      <div class="misson">
+        {% if g.user and g.admin ==0 %}
+        <a href="/manitto" style="color: black;"> 마니또 및 미션확인 </a>
+        {% endif %}
+      </div>
+      {% if g.user %}
+
+      <div class="logout-info">
+        {% if g.admin == 1%}
+        <a href="/admin" style="color: black;"> [관리자 페이지로 이동] </a>
+        <a href="/logout" style="color: black;"> 로그아웃 </a>
+        {% else %}
+        <a href="/logout" style="color: black;"> 로그아웃 </a>
+        {% endif %}
+      </div>
+      {% else %}
+      <div class="logout-info">
+        <a href="/" style="color: black;"> 로그인 </a>
+      </div>
+      {% endif %}
+    </div>
+
+
+    {% if g.user %}
+    <button class="button" onclick="location.href='/board_create'">글작성</button>
+    {% else %}
+    <button class="button" onclick="alert_()">글작성</button>
+    {% endif %}
+
+
+    <div class="card-columns">
+      {% for post in post_list %}
+      <div class="card" style="width: 100%;">
+        <div class="card-body">
+          <h5 class="card-title" style="float: left;">{{post.title}} </h5>
+          {% if g.user == post.user_id %}
+          <a href="{{ url_for('modify_board', post_id=post._id) }}" style="float: left; margin-left: 10px;">
+            <small>수정</small> </a>
+          <a href="{{ url_for('delete_board', post_id=post._id) }}" style="float: left; margin-left: 10px;">
+            <small>삭제</small> </a>
+          {% endif %}
+          <small class="text-muted" style="float: right;">작성자 : {{ post.nickname }}</small>
+          <hr style="margin-top: 35px;">
+          <p class="card-text">{{post.text}}</p>
+        </div>
+
+        <div class="card-footer">
+          <input id="comment_input_{{post._id}}" style="margin-right:5%; width: 60%;" class="input is-small" type="text"
+            placeholder="댓글을 작성하세요.">
+          {% if g.user %}
+          <button class="button is-small" onclick="comment_save('{{post._id}}')" style="float: right;">댓글작성</button>
+          {% else %}
+          <button class="button is-small" onclick="alert_()" style="float: right;">댓글작성</button>
+          {% endif %}
+          <p style="margin-top:  20px;">
+            <button class="btn btn-success" type="button" data-toggle="collapse" data-target="#a{{post._id}}"
+              aria-expanded="false" aria-controls="collapseExample">
+              댓글보기
+            </button>
+          </p>
+          <div class="collapse" id="a{{post._id}}">
+            <div class="card card-body">
+              {% for comment in post.comment%}
+              <div id="comment-box-{{post.title}}">
+                <div id="box_{{post._id}}_{{comment.comment_id}}">
+                  <div id="{{post._id}}_{{comment.comment_id}}" style="display:flex">
+                    <div class="comment_list">
+                      <br>
+                      <p style="font-size: 10; font-weight: 700;">🌴{{comment.nickname}}</p>
+                      <p class="comment">{{comment.comment_text}}</p>
+                      <br>
+                    </div>
+                    {% if g.nickname == comment.nickname %}
+                    <span class="badge badge-success"
+                      onclick="comment_update('{{post._id}}','{{comment.comment_id}}','{{comment.comment_text}}')"
+                      style="margin-left:auto; height: 0%;">수정</span>
+                    <span class="badge badge-success" onclick="comment_delete('{{post._id}}','{{comment.comment_id}}')"
+                      style="height: 0%;">삭제</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              <hr>
+              {% endfor %}
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <small class="text-muted" style="float: left; margin-top: 0px; margin-left: 10px; margin-bottom: 40px;">작성일 :
+        {{post.posted_date.strftime('%Y-%m-%d %H:%M')}}</small>
+
+
+      {% endfor %}
+    </div>
+
+
+  </div>
+</body>
+
+</html>
