@@ -35,7 +35,7 @@ while que:
       arr[nx][ny] = arr[x][y] + 1
       que.append([nx, ny])
 
-
+print(arr)
 
 flag = False
 while beaver:

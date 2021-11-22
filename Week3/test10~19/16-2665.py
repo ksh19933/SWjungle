@@ -7,6 +7,7 @@ def bfs(x, y, clear):
   heappush(heap , [clear, x, y])
   while heap:
     c, x, y = heappop(heap)
+    print(c, x, y)
     if [x, y] == destination:
       return c
     if visited[x][y]:
