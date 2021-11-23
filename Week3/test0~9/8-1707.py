@@ -8,9 +8,10 @@ def dfs(n, id):
     id = 1
   else:
     id = -1
+  print(f'n, id: {n}, {id}')
   for i in gragh[n]:
     if not check[i]:
-      check[i] = id
+      check[i] = -id
       dfs(i, id)
     elif check[i] == check[n]:
       flag = 0
@@ -30,7 +31,7 @@ for _ in range(n):
   flag = 1
   for i in range(1, v_num+1):
     if not check[i]:
-      dfs(i, 1)
+      dfs(i, -1)
   print(check)
   if flag == 1:
     print("YES")
