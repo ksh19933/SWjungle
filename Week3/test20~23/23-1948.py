@@ -16,10 +16,10 @@ for _ in range(road_num):
 start_city, end_city = map(int, input().split())
 
 que = deque()
-que.append(start_city)
-
+que.append(start_city, 0)
+max_leng = 0
 while que:
-  n = que.popleft()
+  n, cost = que.popleft()
   for v, c in graph[n]:
     indegree[v] -= 1
     result[v] = max(result[v], result[n]+c)

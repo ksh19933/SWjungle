@@ -12,15 +12,14 @@ for _ in range(road_num):
 
 que = deque([[start_city, 0]])
 visited = [False] * (city_num + 1)
-visited[start_city] = True
 stack = []
 while(que):
   n, leng = que.popleft()
+  visited[n] = True
   if leng == road_info:
     stack.append(n)
   for v in graph[n]:
     if not visited[v]:
-      visited[v] = True
       que.append([v, leng + 1])
 
 if stack:
